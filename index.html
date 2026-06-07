@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Slapstuck SMP</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #e8436a;
+    --pink-dark: #c02e52;
+    --pink-glow: rgba(232,67,106,0.35);
+    --green: #3dba6e;
+    --green-dark: #2a9355;
+    --green-glow: rgba(61,186,110,0.35);
+    --stone: #181a1c;
+    --stone-mid: #21252a;
+    --stone-light: #2c3137;
+    --text: #eee8e0;
+    --text-muted: #8a8880;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--stone);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 17px;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+    height: 64px;
+    background: rgba(18,20,22,0.88);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(232,67,106,0.15);
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--pink);
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 14px var(--pink-glow);
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+    align-items: center;
+  }
+
+  .nav-links a {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--green); }
+
+  .nav-discord {
+    background: #5865F2;
+    color: #fff !important;
+    padding: 8px 18px;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .nav-discord:hover { background: #4752c4; transform: translateY(-1px); }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 24px 60px;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 60%, rgba(232,67,106,0.07) 0%, transparent 70%),
+      url('https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=1600&q=80') center/cover no-repeat;
+    filter: brightness(0.25) saturate(0.85);
+    z-index: -1;
+  }
+
+  .hero-badge {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--green);
+    background: rgba(61,186,110,0.1);
+    border: 1px solid rgba(61,186,110,0.3);
+    padding: 6px 20px;
+    border-radius: 3px;
+    margin-bottom: 28px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(38px, 6vw, 82px);
+    font-weight: 900;
+    line-height: 1.1;
+    color: #fff;
+    text-shadow: 0 0 60px rgba(232,67,106,0.2);
+    animation: fadeUp 0.9s 0.1s ease both;
+    max-width: 900px;
+  }
+
+  .hero h1 span {
+    color: var(--pink);
+    text-shadow: 0 0 30px var(--pink-glow), 0 0 70px var(--pink-glow);
+  }
+
+  .hero-sub {
+    font-size: 18px;
+    font-weight: 300;
+    color: rgba(238,232,224,0.65);
+    margin-top: 20px;
+    max-width: 540px;
+    line-height: 1.75;
+    animation: fadeUp 1s 0.2s ease both;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 14px;
+    margin-top: 44px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeUp 1s 0.3s ease both;
+  }
+
+  .btn-primary {
+    background: var(--pink);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 15px 36px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 24px var(--pink-glow);
+  }
+  .btn-primary:hover {
+    background: var(--pink-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px var(--pink-glow);
+  }
+
+  .btn-secondary {
+    background: var(--green);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 15px 36px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 24px var(--green-glow);
+  }
+  .btn-secondary:hover {
+    background: var(--green-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px var(--green-glow);
+  }
+
+  /* ── SERVER IP ── */
+  .server-ip {
+    margin-top: 48px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 40px;
+    padding: 10px 10px 10px 24px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: var(--text-muted);
+    animation: fadeUp 1s 0.4s ease both;
+  }
+  .server-ip strong { color: var(--text); }
+  .copy-btn {
+    background: var(--stone-light);
+    border: none;
+    color: var(--green);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    padding: 8px 18px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .copy-btn:hover { background: #383e45; }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    position: relative;
+    z-index: 1;
+    background: var(--stone-mid);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    text-align: center;
+  }
+
+  .stat-item {
+    padding: 26px 16px;
+    border-right: 1px solid rgba(255,255,255,0.05);
+  }
+  .stat-item:last-child { border-right: none; }
+
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--pink);
+    text-shadow: 0 0 12px var(--pink-glow);
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 96px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 10px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(26px, 3vw, 42px);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 14px;
+  }
+
+  .section-desc {
+    font-size: 17px;
+    font-weight: 300;
+    color: var(--text-muted);
+    max-width: 540px;
+    line-height: 1.8;
+  }
+
+  /* ── FEATURES ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2px;
+    margin-top: 52px;
+    border: 2px solid rgba(255,255,255,0.05);
+  }
+
+  .feature-card {
+    background: var(--stone-mid);
+    padding: 34px 30px;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-card:hover { background: #272c31; }
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: transparent;
+    transition: background 0.3s;
+  }
+  .feature-card:hover::before { background: var(--pink); }
+
+  .feature-icon { font-size: 30px; margin-bottom: 14px; display: block; }
+
+  .feature-name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 9px;
+  }
+
+  .feature-desc {
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 3px;
+    margin-top: 12px;
+  }
+  .tag-pink  { background: rgba(232,67,106,0.15); color: var(--pink); }
+  .tag-green { background: rgba(61,186,110,0.13); color: var(--green); }
+  .tag-white { background: rgba(255,255,255,0.07); color: #ccc; }
+
+  /* ── MAP CTA SECTION ── */
+  #map {
+    background: var(--stone-mid);
+    max-width: 100%;
+    padding: 80px 48px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .map-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+
+  .map-text { flex: 1; min-width: 260px; }
+
+  .map-cta-box {
+    flex-shrink: 0;
+    background: var(--stone);
+    border: 1px solid rgba(61,186,110,0.2);
+    border-radius: 8px;
+    padding: 36px 40px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .map-cta-icon { font-size: 48px; }
+
+  .map-cta-label {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 240px;
+  }
+
+  .btn-map {
+    background: var(--green);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px var(--green-glow);
+  }
+  .btn-map:hover {
+    background: var(--green-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px var(--green-glow);
+  }
+
+  /* ── RULES ── */
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+    margin-top: 48px;
+  }
+
+  .rule-card {
+    background: var(--stone-mid);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 5px;
+    padding: 24px 22px 24px 18px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+  .rule-card:hover { border-color: rgba(232,67,106,0.3); }
+
+  .rule-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: rgba(232,67,106,0.22);
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .rule-text h4 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+
+  .rule-text p { font-size: 14px; font-weight: 300; color: var(--text-muted); line-height: 1.65; }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    background: var(--stone-mid);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 40px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--pink);
+    text-shadow: 0 0 12px var(--pink-glow);
+    text-decoration: none;
+  }
+
+  .footer-copy { font-size: 13px; color: var(--text-muted); }
+
+  .footer-links { display: flex; gap: 24px; list-style: none; align-items: center; flex-wrap: wrap; }
+
+  .footer-links a {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--pink); }
+
+  .footer-links .footer-discord {
+    background: #5865F2;
+    color: #fff !important;
+    padding: 7px 16px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .footer-links .footer-discord:hover { background: #4752c4; }
+
+  .footer-links .footer-map {
+    background: var(--green);
+    color: #fff !important;
+    padding: 7px 16px;
+    border-radius: 4px;
+  }
+  .footer-links .footer-map:hover { background: var(--green-dark); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--stone-light);
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    padding: 12px 26px;
+    border-radius: 4px;
+    z-index: 999;
+    transition: transform 0.3s ease;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    section { padding: 60px 24px; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    #map { padding: 60px 24px; }
+    .map-inner { flex-direction: column; }
+    footer { flex-direction: column; gap: 16px; text-align: center; padding: 36px 24px; }
+    .footer-links { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">⛏ Slapstuck SMP</a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#map">Map</a></li>
+    <li><a href="#rules">Rules</a></li>
+    <li><a href="https://discord.gg/hhcUXejN5v" target="_blank" rel="noopener" class="nav-discord">
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M13.552 1.05A13.14 13.14 0 0 0 10.287 0a.049.049 0 0 0-.052.025c-.14.25-.296.576-.405.832a12.13 12.13 0 0 0-3.661 0 8.42 8.42 0 0 0-.412-.832A.051.051 0 0 0 5.705 0a13.11 13.11 0 0 0-3.265 1.05.046.046 0 0 0-.022.019C.375 4.362-.224 7.577.07 10.749a.054.054 0 0 0 .021.037 13.23 13.23 0 0 0 3.993 2.02.052.052 0 0 0 .056-.019c.308-.42.582-.863.817-1.33a.051.051 0 0 0-.028-.071 8.714 8.714 0 0 1-1.248-.595.052.052 0 0 1-.005-.086c.084-.063.168-.128.248-.194a.05.05 0 0 1 .052-.007c2.619 1.197 5.456 1.197 8.044 0a.05.05 0 0 1 .053.006c.08.066.164.132.249.195a.052.052 0 0 1-.004.086c-.399.233-.814.43-1.249.594a.051.051 0 0 0-.027.072c.24.466.514.909.816 1.329a.051.051 0 0 0 .056.02 13.19 13.19 0 0 0 4-.02.052.052 0 0 0 .021-.037c.334-3.455-.559-6.647-2.366-9.68a.041.041 0 0 0-.021-.02ZM5.35 8.808c-.789 0-1.438-.724-1.438-1.613 0-.889.636-1.613 1.438-1.613.808 0 1.45.73 1.438 1.613 0 .889-.636 1.613-1.438 1.613Zm5.31 0c-.789 0-1.438-.724-1.438-1.613 0-.889.636-1.613 1.438-1.613.808 0 1.45.73 1.438 1.613 0 .889-.63 1.613-1.438 1.613Z" fill="white"/></svg>
+      Discord
+    </a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-badge">Hermitcraft-Inspired · Survival Multiplayer</div>
+  <h1>The <span>Slapstuck</span> SMP</h1>
+  <p class="hero-sub">A community-driven survival server built around Hermitcraft values — trading, creativity, and camaraderie.</p>
+  <div class="hero-ctas">
+    <a href="https://discord.gg/hhcUXejN5v" target="_blank" rel="noopener" class="btn-primary">
+      <svg width="18" height="14" viewBox="0 0 16 12" fill="none"><path d="M13.552 1.05A13.14 13.14 0 0 0 10.287 0a.049.049 0 0 0-.052.025c-.14.25-.296.576-.405.832a12.13 12.13 0 0 0-3.661 0 8.42 8.42 0 0 0-.412-.832A.051.051 0 0 0 5.705 0a13.11 13.11 0 0 0-3.265 1.05.046.046 0 0 0-.022.019C.375 4.362-.224 7.577.07 10.749a.054.054 0 0 0 .021.037 13.23 13.23 0 0 0 3.993 2.02.052.052 0 0 0 .056-.019c.308-.42.582-.863.817-1.33a.051.051 0 0 0-.028-.071 8.714 8.714 0 0 1-1.248-.595.052.052 0 0 1-.005-.086c.084-.063.168-.128.248-.194a.05.05 0 0 1 .052-.007c2.619 1.197 5.456 1.197 8.044 0a.05.05 0 0 1 .053.006c.08.066.164.132.249.195a.052.052 0 0 1-.004.086c-.399.233-.814.43-1.249.594a.051.051 0 0 0-.027.072c.24.466.514.909.816 1.329a.051.051 0 0 0 .056.02 13.19 13.19 0 0 0 4-.02.052.052 0 0 0 .021-.037c.334-3.455-.559-6.647-2.366-9.68a.041.041 0 0 0-.021-.02ZM5.35 8.808c-.789 0-1.438-.724-1.438-1.613 0-.889.636-1.613 1.438-1.613.808 0 1.45.73 1.438 1.613 0 .889-.636 1.613-1.438 1.613Zm5.31 0c-.789 0-1.438-.724-1.438-1.613 0-.889.636-1.613 1.438-1.613.808 0 1.45.73 1.438 1.613 0 .889-.63 1.613-1.438 1.613Z" fill="white"/></svg>
+      Join the Community
+    </a>
+    <a href="http://209.126.13.101:26766" target="_blank" rel="noopener" class="btn-secondary">
+      🗺️ View Live Map
+    </a>
+  </div>
+  <div class="server-ip">
+    <strong id="ip-text">play.slapstuck.net</strong>
+    <button class="copy-btn" onclick="copyIP()">Copy IP</button>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <span class="stat-value">24/7</span>
+    <span class="stat-label">Uptime</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-value">💎</span>
+    <span class="stat-label">Diamond Economy</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-value">🛡</span>
+    <span class="stat-label">Anti-Grief Protected</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-value">🏪</span>
+    <span class="stat-label">Shopping District</span>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-label">What We Offer</div>
+  <h2 class="section-title">Built for the Hermitcraft Spirit</h2>
+  <p class="section-desc">Everything you loved watching on Hermitcraft, now yours to play on.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <span class="feature-icon">🏪</span>
+      <div class="feature-name">Shopping District</div>
+      <p class="feature-desc">A dedicated trade hub where members run their own shops. Buy, sell, and barter your way to wealth in the community market.</p>
+      <span class="tag tag-white">Hermitcraft-style</span>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">💎</span>
+      <div class="feature-name">Diamond Economy</div>
+      <p class="feature-desc">The server runs on a diamond-based currency system, keeping the economy grounded and fair — just like the classic Hermitcraft approach.</p>
+      <span class="tag tag-green">Balanced</span>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🤝</span>
+      <div class="feature-name">Honor System</div>
+      <p class="feature-desc">We trust our players. The Honor System means no locking chests in shops — members are expected to pay fairly and act with integrity.</p>
+      <span class="tag tag-pink">Trust-based</span>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🛡️</span>
+      <div class="feature-name">Anti-Grief Plugins</div>
+      <p class="feature-desc">Your builds are safe. We run industry-standard protection plugins so your creations are preserved exactly as you left them.</p>
+      <span class="tag tag-green">Protected</span>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🌍</span>
+      <div class="feature-name">Live World Map</div>
+      <p class="feature-desc">Explore the entire server in real-time. See every biome, build, and base — and check who's online right now.</p>
+      <span class="tag tag-green">Live</span>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🎉</span>
+      <div class="feature-name">Community Events</div>
+      <p class="feature-desc">Regular server-wide events, build competitions, and community projects keep the world alive and growing every season.</p>
+      <span class="tag tag-pink">Active</span>
+    </div>
+  </div>
+</section>
+
+<!-- MAP CTA -->
+<div id="map">
+  <div class="map-inner">
+    <div class="map-text">
+      <div class="section-label">Live Map</div>
+      <h2 class="section-title">See the World in Real Time</h2>
+      <p class="section-desc">Our live server map lets you browse every biome, build, and base — even while you're offline. Track player positions, explore the nether, and scope out the shopping district before you log in.</p>
+    </div>
+    <div class="map-cta-box">
+      <div class="map-cta-icon">🗺️</div>
+      <p class="map-cta-label">Opens in a new tab — no login required</p>
+      <a href="http://209.126.13.101:26766" target="_blank" rel="noopener" class="btn-map">
+        Open Live Map ↗
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- RULES -->
+<section id="rules">
+  <div class="section-label">Community Standards</div>
+  <h2 class="section-title">Server Rules</h2>
+  <p class="section-desc">We keep it simple. Follow these and you'll fit right in.</p>
+  <div class="rules-grid">
+    <div class="rule-card">
+      <div class="rule-num">01</div>
+      <div class="rule-text">
+        <h4>No Griefing</h4>
+        <p>Destroying or tampering with another player's builds is strictly prohibited. Anti-grief plugins are active at all times.</p>
+      </div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-num">02</div>
+      <div class="rule-text">
+        <h4>Respect the Honor System</h4>
+        <p>Pay for items in shops honestly. We trust you — don't abuse that trust. Theft or bad faith trading will result in a ban.</p>
+      </div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-num">03</div>
+      <div class="rule-text">
+        <h4>Respect Everyone</h4>
+        <p>Treat all players with respect. Harassment, hate speech, and personal attacks are not tolerated in any form.</p>
+      </div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-num">04</div>
+      <div class="rule-text">
+        <h4>No Cheating or Hacks</h4>
+        <p>Hacked clients, duplication exploits, and x-ray are banned. Play vanilla-style — it's more satisfying anyway.</p>
+      </div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-num">05</div>
+      <div class="rule-text">
+        <h4>Keep the World Beautiful</h4>
+        <p>No floating trees, crater holes, or abandoned builds near spawn. Keep the world looking great for everyone.</p>
+      </div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-num">06</div>
+      <div class="rule-text">
+        <h4>Have Fun</h4>
+        <p>This is a Hermitcraft-inspired server. The spirit is creativity, collaboration, and good vibes. Bring that energy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="footer-logo">⛏ The Slapstuck SMP</a>
+  <p class="footer-copy">A Hermitcraft-inspired community. Not affiliated with Hermitcraft.</p>
+  <ul class="footer-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#rules">Rules</a></li>
+    <li><a href="http://209.126.13.101:26766" target="_blank" rel="noopener" class="footer-map">🗺️ Map</a></li>
+    <li><a href="https://discord.gg/hhcUXejN5v" target="_blank" rel="noopener" class="footer-discord">
+      <svg width="14" height="11" viewBox="0 0 16 12" fill="none"><path d="M13.552 1.05A13.14 13.14 0 0 0 10.287 0a.049.049 0 0 0-.052.025c-.14.25-.296.576-.405.832a12.13 12.13 0 0 0-3.661 0 8.42 8.42 0 0 0-.412-.832A.051.051 0 0 0 5.705 0a13.11 13.11 0 0 0-3.265 1.05.046.046 0 0 0-.022.019C.375 4.362-.224 7.577.07 10.749a.054.054 0 0 0 .021.037 13.23 13.23 0 0 0 3.993 2.02.052.052 0 0 0 .056-.019c.308-.42.582-.863.817-1.33a.051.051 0 0 0-.028-.071 8.714 8.714 0 0 1-1.248-.595.052.052 0 0 1-.005-.086c.084-.063.168-.128.248-.194a.05.05 0 0 1 .052-.007c2.619 1.197 5.456 1.197 8.044 0a.05.05 0 0 1 .053.006c.08.066.164.132.249.195a.052.052 0 0 1-.004.086c-.399.233-.814.43-1.249.594a.051.051 0 0 0-.027.072c.24.466.514.909.816 1.329a.051.051 0 0 0 .056.02 13.19 13.19 0 0 0 4-.02.052.052 0 0 0 .021-.037c.334-3.455-.559-6.647-2.366-9.68a.041.041 0 0 0-.021-.02ZM5.35 8.808c-.789 0-1.438-.724-1.438-1.613 0-.889.636-1.613 1.438-1.613.808 0 1.45.73 1.438 1.613 0 .889-.636 1.613-1.438 1.613Zm5.31 0c-.789 0-1.438-.724-1.438-1.613 0-.889.636-1.613 1.438-1.613.808 0 1.45.73 1.438 1.613 0 .889-.63 1.613-1.438 1.613Z" fill="white"/></svg>
+      Discord
+    </a></li>
+  </ul>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  function copyIP() {
+    const ip = document.getElementById('ip-text').textContent;
+    navigator.clipboard.writeText(ip).then(() => showToast('Copied: ' + ip));
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.feature-card, .rule-card').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
